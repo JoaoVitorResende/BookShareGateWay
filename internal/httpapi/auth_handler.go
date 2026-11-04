@@ -45,6 +45,24 @@ func (h *AuthHandler) forward(w http.ResponseWriter, r *http.Request, queue stri
 		return
 	}
 
+	var env replyEnvelope
+	if err := json.Unmarshal(resp, &env); err != nil {
+		http.Error(w, "invalid upstream response", http.StatusBadGateway)
+		return
+	}
+
+	status := statusFromEnvelope(env)
+
+	var payload []byte
+	if env.Error != nil {
+		payload, _ = json.Marshal(map[string]*errorBody{"error": env.Error})
+	} else if len(env.Data) > 0 {
+		payload = env.Data
+	} else {
+		payload = []byte("null")
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(resp)
+	w.WriteHeader(status)
+	w.Write(payload)
 }
