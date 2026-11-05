@@ -1,0 +1,21 @@
+services:
+  gateway:
+    build: .
+    environment:
+      RABBIT_URL: amqp://guest:guest@rabbitmq:5672/
+      JWT_PUBLIC_KEY_PATH: /run/secrets/jwt_public_key
+    secrets:
+      - jwt_public_key
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    networks:
+      - bookshare-net
+
+secrets:
+  jwt_public_key:
+    file: ../UserBookShareApi/public.pem
+
+networks:
+  bookshare-net:
+    external: true
