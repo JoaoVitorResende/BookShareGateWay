@@ -46,6 +46,7 @@ func main() {
 
 	router := httpapi.NewRouter(
 		httpapi.NewAuthHandler(rpc),
+		httpapi.NewBookHandler(rpc),
 		httpapi.NewAuthMiddleware(pub),
 	)
 
